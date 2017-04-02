@@ -2,6 +2,7 @@ package nearestNeigh;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * This class is required to be implemented.  Naive approach implementation.
@@ -14,13 +15,28 @@ public class NaiveNN implements NearestNeigh{
 
     @Override
     public void buildIndex(List<Point> points) {
-        this.setPoints(selectionSortByLatitude(points));
+        this.setPoints(points);
     }
 
     @Override
     public List<Point> search(Point searchTerm, int k) {
-        // To be implemented.
-        return new ArrayList<Point>();
+    	// design point/distance class
+    	// for each item in List, get distance and assign to a pointAndDistance object
+    	// add object to pointAndDistance array
+    	// sort the array by distance
+    	// return the first k elements
+    	
+    	List<PointAndDistance> distances = new ArrayList<PointAndDistance>();
+    	List<Point> sortedPoints = new ArrayList<Point>();
+    	for (Point point : points) {
+    		double distance = point.distTo(searchTerm);
+    		PointAndDistance pad = new PointAndDistance(point, distance);
+    		distances.add(pad);
+    	}
+    	distances = selectionSortByDistance(distances);
+    	for (int x = 0; x < k; ++x) 
+    		sortedPoints.add(distances.get(x).point);
+    	return sortedPoints;
     }
 
     @Override
@@ -41,16 +57,17 @@ public class NaiveNN implements NearestNeigh{
         return false;
     }
     
-    private List<Point> selectionSortByLatitude(List<Point> array) {
+    
+    private List<PointAndDistance> selectionSortByDistance(List<PointAndDistance> array) {
         for (int j = 0; j < array.size() - 1; ++j) { // visit each item in the list
         	int smallestIndex = j + 1;
         	for (int x = j + 2; x < array.size(); ++x) { // for each 'j', compare it to each array[index > j]
-        		if (array.get(x).lat < array.get(smallestIndex).lat) {
+        		if (array.get(x).distance < array.get(smallestIndex).distance) {
         			smallestIndex = x;
         		}
         	}
-        	if (array.get(j).lat > array.get(smallestIndex).lat) {
-        		Point temp = array.get(j);
+        	if (array.get(j).distance > array.get(smallestIndex).distance) {
+        		PointAndDistance temp = array.get(j);
         		array.set(j, array.get(smallestIndex));
         		array.set(smallestIndex, temp);
         	}
@@ -66,4 +83,15 @@ public class NaiveNN implements NearestNeigh{
 		this.points = points;
 	}
 
+}
+
+class PointAndDistance {
+	
+	public Point point;
+	public double distance;
+	
+	public PointAndDistance(Point point, double distance) {
+		this.point = point;
+		this.distance = distance;
+	}
 }

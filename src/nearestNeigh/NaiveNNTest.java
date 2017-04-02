@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class NaiveNNTest {
 	
-	List<Point> points = new ArrayList();
+	List<Point> points = new ArrayList<Point>();
 	NaiveNN agent = new NaiveNN();
 	
 	@Before
@@ -28,13 +28,15 @@ public class NaiveNNTest {
 	}
 	
 	@Test
-	public void selectionSortByLatitudeTest() { 
+	public void searchTest() { 
 		System.out.println("Starting Test");
-		System.out.println("lat in point 0: " + points.get(0).lat);
 		agent.buildIndex(points);
-		System.out.println("lat in point 0: " + agent.getPoints().get(0).lat);
-		System.out.println("lat in point 1: " + agent.getPoints().get(1).lat);
-		assertTrue(agent.getPoints().get(0).lat < agent.getPoints().get(1).lat);
+		Point searchTerm = new Point("id9", Point.parseCat("restaurant"), -41.3159209067, 140.772377025);
+		List<Point> closest = agent.search(searchTerm, 8);
+		for (Point point : closest) {
+			System.out.println("Distance to point: " + point.distTo(searchTerm));
+		}
+		assertTrue(true);
 	}
 
 }
