@@ -33,7 +33,14 @@ public class KDTreeNN implements NearestNeigh{
         // To be implemented.
         return new ArrayList<Point>();
     }
-
+    
+    /**
+     * Each Point is wrapped in a Node object
+     * It is added to the tree based on the vertical or horizontal split for that level of the tree
+     * The left nodes are considered to be the lower values for this implementation
+     * @param point is the x and y coordinates to be added
+     * @return boolean to test if the addition was successful
+     */
     @Override
     public boolean addPoint(Point point) {
     	//Start by creating a node to wrap the point
@@ -44,7 +51,32 @@ public class KDTreeNN implements NearestNeigh{
     	//if null node then add, else descend
     	//use the changeDimension() function when descending the tree
     	//It will return the new dimension but also allow getCoordinates() to return correctly
-        return false;
+    	
+    	Node nodeToAdd = new Node(point, true, null, null, null);
+    	if (root == null) //Root case
+    		root = nodeToAdd;
+    	Node nodeFromTree = root; //Pointer node to search the tree for insertion point
+    	Node lastFoundNode = root;
+    	while(nodeFromTree != null) {
+    		if(nodeToAdd.isGreaterThan(nodeFromTree)) {
+    			lastFoundNode = nodeFromTree;
+    			nodeFromTree = nodeFromTree.getRightChild();
+    			nodeToAdd.changeDimension();
+    		}
+    		else {
+    			lastFoundNode = nodeFromTree;
+    			nodeFromTree = nodeFromTree.getLeftChild();
+    			nodeToAdd.changeDimension();
+    		}
+    	}
+    	//Assign values
+    	nodeToAdd.setParent(lastFoundNode);
+    	if (nodeToAdd.isGreaterThan(lastFoundNode))
+    		lastFoundNode.setRightChild(nodeToAdd);
+    	else
+    		lastFoundNode.setLeftChild(nodeToAdd);
+
+        return true;
     }
 
     @Override
@@ -117,21 +149,6 @@ class Node {
 		this.setLeftChild(leftChild);
 		this.setRightChild(rightChild);
 	}
-	
-	public double getCoordinate() {
-		if (isVertical)
-			return point.lat;
-		else
-			return point.lon;
-	}
-	
-	public boolean changeDimension() {
-		if (this.isVertical == true)
-			this.isVertical = false;
-		else
-			this.isVertical = true;
-		return isVertical;
-	}
 
 	public Node getParent() {
 		return parent;
@@ -155,6 +172,28 @@ class Node {
 
 	public void setRightChild(Node rightChild) {
 		this.rightChild = rightChild;
+	}
+	
+	public double getCoordinate() {
+		if (isVertical)
+			return point.lat;
+		else
+			return point.lon;
+	}
+	
+	public boolean changeDimension() {
+		if (this.isVertical == true)
+			this.isVertical = false;
+		else
+			this.isVertical = true;
+		return isVertical;
+	}
+	
+	public boolean isGreaterThan(Node nodeFromTree) {
+		if (this.getCoordinate() > nodeFromTree.getCoordinate())
+			return true;
+		else
+			return false;
 	}
 }
 
