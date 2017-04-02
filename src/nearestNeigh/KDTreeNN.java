@@ -22,7 +22,7 @@ public class KDTreeNN implements NearestNeigh{
     	this.points = selectionSortByLatitude(points);
     	int middleIndex = (points.size() / 2);
     	Point rootPoint = points.get(middleIndex);
-    	this.root = new Node(rootPoint, true, null, null, null);
+    	this.root = new Node(rootPoint, true, null, null, null); //First node is vertically split - (x axis)
     	for (Point point: points) {
     		addPoint(point);
     	}
@@ -36,13 +36,20 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public boolean addPoint(Point point) {
-        // To be implemented.
+    	//Start by creating a node to wrap the point
+    	//set the isVertical to true
+    	//use the getCoordinate() to find the comparator (either the x or y based on the isVertical status) 
+    	//compare the coordinates
+    	//choose a direction and get the next node
+    	//if null node then add, else descend
+    	//use the changeDimension() function when descending the tree
+    	//It will return the new dimension but also allow getCoordinates() to return correctly
         return false;
     }
 
     @Override
     public boolean deletePoint(Point point) {
-        // To be implemented.
+    	// To be implemented.
         return false;
     }
 
