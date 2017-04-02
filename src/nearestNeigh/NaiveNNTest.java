@@ -36,7 +36,7 @@ public class NaiveNNTest {
 		for (Point point : closest) {
 			System.out.println("Distance to point: " + point.distTo(searchTerm));
 		}
-		assertTrue(true);
+		assertTrue(closest.get(0).distTo(searchTerm) < closest.get(1).distTo(searchTerm));
 	}
 
 }
