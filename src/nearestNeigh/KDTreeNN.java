@@ -12,6 +12,7 @@ public class KDTreeNN implements NearestNeigh{
 	
 	private Node root;
 	private List<Point> points;
+	
 
     @Override
     public void buildIndex(List<Point> points) {
