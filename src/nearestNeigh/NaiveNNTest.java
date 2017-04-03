@@ -32,7 +32,7 @@ public class NaiveNNTest {
 		System.out.println("Starting Test");
 		agent.buildIndex(points);
 		Point searchTerm = new Point("id9", Point.parseCat("restaurant"), -41.3159209067, 140.772377025);
-		List<Point> closest = agent.search(searchTerm, 8);
+		List<Point> closest = agent.search(searchTerm, 4);
 		for (Point point : closest) {
 			System.out.println("Distance to point: " + point.distTo(searchTerm));
 		}
