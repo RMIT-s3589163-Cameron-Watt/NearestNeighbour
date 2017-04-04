@@ -11,9 +11,14 @@ import java.util.List;
 public class KDTreeNN implements NearestNeigh{
 	
 	private Node root = null;
-	private List<Point> points;
 	
-
+	/**
+	 * Recursively adds 2D points into a tree structure using a Depth first approach
+	 * The tree structure is accessible via the root node variable
+	 * Calls splitAndAddToTree() method to complete the recursion
+	 * @param A java List<> of Point objects
+	 * @return void
+	 */
     @Override
     public void buildIndex(List<Point> points) {
     	List<Node> unsortedNodes = new ArrayList<>();
@@ -55,26 +60,24 @@ public class KDTreeNN implements NearestNeigh{
     	Node nodeToAdd = new Node(point, true, null, null, null); //Wrap the point in a Node
     	Node nodeFromTree = root; //Pointer node to search the tree for insertion point
     	Node lastFoundNode = root; //Trails the pointer to hold reference to the tree
-    	boolean travelledLeft = true;
+    	boolean travelledLeft = true; //Remembers the last direction travelled
     	while(nodeFromTree != null) {
+			lastFoundNode = nodeFromTree;
     		try {
 				if(nodeToAdd.isGreaterThan(nodeFromTree)) { //go right subtree
-					lastFoundNode = nodeFromTree;
 					nodeFromTree = nodeFromTree.getRightChild();
-					nodeToAdd.changeDimension();
 					travelledLeft = false;
 				}
 				else { //go left subtree
-					lastFoundNode = nodeFromTree;
 					nodeFromTree = nodeFromTree.getLeftChild();
-					nodeToAdd.changeDimension();
 					travelledLeft = true;
 				}
 			} catch (DimensionMismatchException e) {
 				e.printStackTrace();
 			}
-    	}
-    	nodeToAdd.setParent(lastFoundNode);     	//Assign values
+			nodeToAdd.changeDimension();
+    	} //end while loop
+    	nodeToAdd.setParent(lastFoundNode); //Assign values
     	if (travelledLeft)
     		lastFoundNode.setLeftChild(nodeToAdd);
     	else
@@ -100,14 +103,6 @@ public class KDTreeNN implements NearestNeigh{
 
 	public void setRoot(Node root) {
 		this.root = root;
-	}
-	
-	public List<Point> getPoints() {
-		return points;
-	}
-
-	public void setPoints(List<Point> points) {
-		this.points = points;
 	}
 	
 	private List<Node> nodeSelectionSort(List<Node> array) {
