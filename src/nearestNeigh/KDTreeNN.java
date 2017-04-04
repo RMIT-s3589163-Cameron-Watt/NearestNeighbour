@@ -11,6 +11,7 @@ import java.util.List;
 public class KDTreeNN implements NearestNeigh{
 	
 	private Node root = null;
+	private List<NodeAndDistance> closest = new ArrayList<>();
 	
 	/**
 	 * Recursively adds 2D points into a tree structure using a Depth first approach
@@ -27,6 +28,14 @@ public class KDTreeNN implements NearestNeigh{
     	this.root = splitAndAddToTree(unsortedNodes, this.root);
     }
     
+    /**
+     * A recursive method that receives a list of nodes
+     * selects the middle node along the chosen dimension
+     * and calls itself on the sublist to the left, and then the right
+     * @param A List<> of Node objects to be added to the tree
+     * @param A Node object that will be the parent node of the return value
+     * @return Node object chosen to split the collection of nodes
+     */
     public Node splitAndAddToTree(List<Node> nodes, Node parent) {
     	if (nodes.isEmpty())
     		return null;
@@ -44,8 +53,54 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public List<Point> search(Point searchTerm, int k) {
-        // To be implemented.
+    	//call findKNodes()
         return new ArrayList<>();
+    }
+    
+    public void findKNodes(Node currentTreeNode, Node searchTerm, int k) {
+    	//should I change dimension in here somewhere?
+    	double currentDistance = currentTreeNode.getPoint().distTo(searchTerm.getPoint());
+    	NodeAndDistance newAddition = new NodeAndDistance(currentTreeNode, currentDistance);
+    	if (closest.size() < k || currentDistance < closest.get(k).distance) {
+    		closest.add(newAddition);
+    		closest = selectionSortByDistance(closest);
+    	}
+    	Direction d = currentTreeNode.chooseDirection(searchTerm);
+    	if (currentTreeNode.getChild(d) == null) {
+    		return;
+    	}
+    	//check if we need to go the other direction
+    	Point darkSide = new Point();
+    	//darkSide = createStraightLinePoint(current, search);
+    	if (currentTreeNode.getDirection()) { //if x axis
+    		darkSide.lon = searchTerm.getPoint().lon;
+    		darkSide.lat = currentTreeNode.getCoordinate();
+    	}
+    	else {
+    		darkSide.lat = searchTerm.getPoint().lat;
+    		darkSide.lon = currentTreeNode.getCoordinate();
+    	}
+    	Double distanceToOtherSide = searchTerm.getPoint().distTo(darkSide);
+    	if (currentDistance > distanceToOtherSide) {
+    		findKNodes(currentTreeNode.getChild(d.getOtherDirection()), searchTerm, k);
+    	}
+    }
+    
+    private List<NodeAndDistance> selectionSortByDistance(List<NodeAndDistance> array) {
+        for (int j = 0; j < array.size() - 1; ++j) { // visit each item in the list
+        	int smallestIndex = j + 1;
+        	for (int x = j + 2; x < array.size(); ++x) { // for each 'j', compare it to each array[index > j]
+        		if (array.get(x).distance < array.get(smallestIndex).distance) {
+        			smallestIndex = x;
+        		}
+        	}
+        	if (array.get(j).distance > array.get(smallestIndex).distance) {
+        		NodeAndDistance temp = array.get(j);
+        		array.set(j, array.get(smallestIndex));
+        		array.set(smallestIndex, temp);
+        	}
+        }
+        return array;
     }
     
     /**
@@ -93,8 +148,17 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public boolean isPointIn(Point point) {
-        // To be implemented.
-        return false;
+        return isPointTheSame(point, root);
+    }
+    
+    public boolean isPointTheSame(Point searchTerm, Node treeNode) {
+    	if (treeNode != null) {
+    		return treeNode.getPoint().equals(searchTerm) || //check itself
+        			isPointTheSame(searchTerm, treeNode.getLeftChild()) || //check left
+        			isPointTheSame(searchTerm, treeNode.getRightChild()); //check right
+    	}
+    	else //reached a leaf
+    		return false;
     }
 
 	public Node getRoot() {
@@ -123,6 +187,16 @@ public class KDTreeNN implements NearestNeigh{
 	}
 }
 
+class NodeAndDistance {
+	public Node node;
+	public double distance;
+	
+	public NodeAndDistance(Node node, double distance) {
+		this.node = node;
+		this.distance = distance;
+	}
+}
+
 class Node {
 	
 	/**
@@ -146,6 +220,10 @@ class Node {
 		this.setParent(parent);
 		this.setLeftChild(leftChild);
 		this.setRightChild(rightChild);
+	}
+	
+	public Point getPoint() {
+		return this.point;
 	}
 
 	public Node getParent() {
@@ -184,11 +262,32 @@ class Node {
 		return isVertical;
 	}
 	
+	public boolean getDirection() {
+		return this.isVertical;
+	}
+	
 	public boolean isGreaterThan(Node nodeFromTree) throws DimensionMismatchException {
 		if (nodeFromTree.isVertical != this.isVertical)
 			throw new DimensionMismatchException();
 		return this.getCoordinate() > nodeFromTree.getCoordinate();
 	}
+	
+	public Node getChild(Direction direction) {
+		if (direction == Direction.LEFT) {
+			return this.leftChild;
+		}
+		else
+			return this.rightChild;
+	}
+	
+	public Direction chooseDirection(Node searchNode) {
+		if (searchNode.getCoordinate() < this.getCoordinate()) {
+			return Direction.LEFT;
+		}
+		else
+			return Direction.RIGHT;
+	}
 }
+
 
 
