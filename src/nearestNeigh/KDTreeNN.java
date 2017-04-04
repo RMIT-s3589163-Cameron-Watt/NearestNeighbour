@@ -15,23 +15,31 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public void buildIndex(List<Point> points) {
-        //sort and add all points to the points array
-    	//take the middle point, create a node and assign it to root
-    	//iterate through points and use the addPoint method to build the tree
-    	//the addPoint method will have to wrap each Point in a node
-    	this.points = selectionSortByLatitude(points);
-    	int middleIndex = (points.size() / 2);
-    	Point rootPoint = points.get(middleIndex);
-    	this.root = new Node(rootPoint, true, null, null, null); //First node is vertically split - (x axis)
-    	for (Point point: points) {
-    		addPoint(point);
-    	}
+    	List<Node> unsortedNodes = new ArrayList<>();
+    	for (Point point: points)
+    		unsortedNodes.add(new Node(point, true, null, null, null));
+    	this.root = splitAndAddToTree(unsortedNodes, this.root);
+    }
+    
+    public Node splitAndAddToTree(List<Node> nodes, Node parent) {
+    	if (nodes.isEmpty())
+    		return null;
+    	List<Node> sortedNodes = nodeSelectionSort(nodes); //sort the nodes
+    	int middleIndex = sortedNodes.size() / 2; //find the middle node
+    	Node middleNode = sortedNodes.remove(middleIndex); //removes from the list AND returns the object
+    	middleNode.setParent(parent); //Connect to the tree
+    	for (Node node: sortedNodes) //change isVertical in every other node
+    		node.changeDimension();
+    	//recursive call to left and right sides
+    	middleNode.setLeftChild(splitAndAddToTree(sortedNodes.subList(0, middleIndex), middleNode)); //left subtree
+    	middleNode.setRightChild(splitAndAddToTree(sortedNodes.subList(middleIndex, sortedNodes.size()), middleNode)); //right subtree
+    	return middleNode;
     }
 
     @Override
     public List<Point> search(Point searchTerm, int k) {
         // To be implemented.
-        return new ArrayList<Point>();
+        return new ArrayList<>();
     }
     
     /**
@@ -43,39 +51,36 @@ public class KDTreeNN implements NearestNeigh{
      */
     @Override
     public boolean addPoint(Point point) {
-    	//Start by creating a node to wrap the point
-    	//set the isVertical to true
-    	//use the getCoordinate() to find the comparator (either the x or y based on the isVertical status) 
-    	//compare the coordinates
-    	//choose a direction and get the next node
-    	//if null node then add, else descend
-    	//use the changeDimension() function when descending the tree
-    	//It will return the new dimension but also allow getCoordinates() to return correctly
-    	
-    	Node nodeToAdd = new Node(point, true, null, null, null);
+    	Node nodeToAdd = new Node(point, true, null, null, null); //Wrap the point in a Node
     	if (root == null) //Root case
     		root = nodeToAdd;
     	Node nodeFromTree = root; //Pointer node to search the tree for insertion point
-    	Node lastFoundNode = root;
+    	Node lastFoundNode = root; //Trails the pointer to hold reference to the tree
+    	boolean travelledLeft = true;
     	while(nodeFromTree != null) {
-    		if(nodeToAdd.isGreaterThan(nodeFromTree)) {
-    			lastFoundNode = nodeFromTree;
-    			nodeFromTree = nodeFromTree.getRightChild();
-    			nodeToAdd.changeDimension();
-    		}
-    		else {
-    			lastFoundNode = nodeFromTree;
-    			nodeFromTree = nodeFromTree.getLeftChild();
-    			nodeToAdd.changeDimension();
-    		}
+    		try {
+				if(nodeToAdd.isGreaterThan(nodeFromTree)) { //go right subtree
+					lastFoundNode = nodeFromTree;
+					nodeFromTree = nodeFromTree.getRightChild();
+					nodeToAdd.changeDimension();
+					travelledLeft = false;
+				}
+				else { //go left subtree
+					lastFoundNode = nodeFromTree;
+					nodeFromTree = nodeFromTree.getLeftChild();
+					nodeToAdd.changeDimension();
+					travelledLeft = true;
+				}
+			} catch (DimensionMismatchException e) {
+				e.printStackTrace();
+			}
     	}
     	//Assign values
     	nodeToAdd.setParent(lastFoundNode);
-    	if (nodeToAdd.isGreaterThan(lastFoundNode))
-    		lastFoundNode.setRightChild(nodeToAdd);
-    	else
+    	if (travelledLeft)
     		lastFoundNode.setLeftChild(nodeToAdd);
-
+    	else
+    		lastFoundNode.setRightChild(nodeToAdd);
         return true;
     }
 
@@ -107,16 +112,16 @@ public class KDTreeNN implements NearestNeigh{
 		this.points = points;
 	}
 	
-	private List<Point> selectionSortByLatitude(List<Point> array) {
+	private List<Node> nodeSelectionSort(List<Node> array) {
 		for (int j = 0; j < array.size() - 1; ++j) { // visit each item in the list
 			int smallestIndex = j + 1;
 			for (int x = j + 2; x < array.size(); ++x) { // for each 'j', compare it to each array[index > j]
-				if (array.get(x).lat < array.get(smallestIndex).lat) {
+				if (array.get(x).getCoordinate() < array.get(smallestIndex).getCoordinate()) {
 					smallestIndex = x;
 				}
 			}
-			if (array.get(j).lat > array.get(smallestIndex).lat) {
-				Point temp = array.get(j);
+			if (array.get(j).getCoordinate() > array.get(smallestIndex).getCoordinate()) {
+				Node temp = array.get(j);
 				array.set(j, array.get(smallestIndex));
 				array.set(smallestIndex, temp);
 			}
@@ -129,7 +134,7 @@ class Node {
 	
 	/**
 	 * A Node Object for a 2D tree
-	 * The x and y values exits inside the point variable (holds a Point object)
+	 * The x and y values exist inside the point variable (holds a Point object)
 	 * There are references to 3 other node objects within each Node
 	 * They belong to the parent, left child, and right child nodes
 	 * If parent is null, it can be assumed it is the root
@@ -182,18 +187,14 @@ class Node {
 	}
 	
 	public boolean changeDimension() {
-		if (this.isVertical == true)
-			this.isVertical = false;
-		else
-			this.isVertical = true;
+		this.isVertical = !this.isVertical;
 		return isVertical;
 	}
 	
-	public boolean isGreaterThan(Node nodeFromTree) {
-		if (this.getCoordinate() > nodeFromTree.getCoordinate())
-			return true;
-		else
-			return false;
+	public boolean isGreaterThan(Node nodeFromTree) throws DimensionMismatchException {
+		if (nodeFromTree.isVertical != this.isVertical)
+			throw new DimensionMismatchException();
+		return this.getCoordinate() > nodeFromTree.getCoordinate();
 	}
 }
 
