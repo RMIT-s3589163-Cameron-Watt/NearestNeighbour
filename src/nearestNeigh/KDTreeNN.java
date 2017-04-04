@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class KDTreeNN implements NearestNeigh{
 	
-	private Node root;
+	private Node root = null;
 	private List<Point> points;
 	
 
@@ -53,8 +53,6 @@ public class KDTreeNN implements NearestNeigh{
     @Override
     public boolean addPoint(Point point) {
     	Node nodeToAdd = new Node(point, true, null, null, null); //Wrap the point in a Node
-    	if (root == null) //Root case
-    		root = nodeToAdd;
     	Node nodeFromTree = root; //Pointer node to search the tree for insertion point
     	Node lastFoundNode = root; //Trails the pointer to hold reference to the tree
     	boolean travelledLeft = true;
@@ -76,8 +74,7 @@ public class KDTreeNN implements NearestNeigh{
 				e.printStackTrace();
 			}
     	}
-    	//Assign values
-    	nodeToAdd.setParent(lastFoundNode);
+    	nodeToAdd.setParent(lastFoundNode);     	//Assign values
     	if (travelledLeft)
     		lastFoundNode.setLeftChild(nodeToAdd);
     	else
