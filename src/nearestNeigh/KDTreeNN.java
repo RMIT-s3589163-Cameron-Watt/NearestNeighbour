@@ -196,6 +196,12 @@ public class KDTreeNN implements NearestNeigh{
 	}
 }
 
+/**
+ * A wrapper Class to hold a Node and a distance value 
+ * The measurement is the distance to another Node in a search request
+ * @author patstockwell
+ *
+ */
 class NodeAndDistance {
 	public Node node;
 	public double distance;
@@ -206,16 +212,17 @@ class NodeAndDistance {
 	}
 }
 
+/**
+ * A Node Object for a 2D tree
+ * The x and y values exist inside the point variable (holds a Point object)
+ * There are references to 3 other node objects within each Node
+ * They belong to the parent, left child, and right child nodes
+ * If parent is null, it can be assumed it is the root
+ * If either child is null, it can be assumed it is a leaf
+ * @author patstockwell
+ *
+ */
 class Node {
-	
-	/**
-	 * A Node Object for a 2D tree
-	 * The x and y values exist inside the point variable (holds a Point object)
-	 * There are references to 3 other node objects within each Node
-	 * They belong to the parent, left child, and right child nodes
-	 * If parent is null, it can be assumed it is the root
-	 * If either child is null, it can be assumed it is a leaf
-	 */
 	
 	private Point point;
 	private boolean isVertical;
