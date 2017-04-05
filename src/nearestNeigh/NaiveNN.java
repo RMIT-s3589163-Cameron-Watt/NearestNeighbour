@@ -41,20 +41,42 @@ public class NaiveNN implements NearestNeigh{
 
     @Override
     public boolean addPoint(Point point) {
-        // To be implemented.
-        return false;
+    	// Check if point already exists in the arrayList
+    	// isPointIn will return true if the point is found
+    	
+    	/* ###############################################################
+    	 * DONT LIKE THIS CAST BUT I CANNOT DIRECTLY ACCESS THE isPointIn
+    	 * AND IT SEEMS REDUNDANT TO WRITE THE SAME FUNCTIONS AGAIN
+    	 * ###############################################################
+    	*/
+    	if ( ((NearestNeigh) point).isPointIn(point) ) {
+    		// Return false if the point is already in the data structure
+    		return false;
+    	}
+    	else {
+    		points.add(point);
+    		return true;
+    	}        
     }
 
     @Override
     public boolean deletePoint(Point point) {
-        // To be implemented.
-        return false;
+    	if (points.remove(point) )
+    	{
+    		return true;
+    	}
+    	// Return false if the point was NOT found in the data structure
+		return false;
     }
 
     @Override
     public boolean isPointIn(Point point) {
-        // To be implemented.
-        return false;
+		for ( Point currentPoint : points ) {
+			if ( currentPoint.equals(point)) {
+				return true;
+			}
+		}
+		return false;
     }
     
     
