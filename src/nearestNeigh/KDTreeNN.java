@@ -44,7 +44,10 @@ public class KDTreeNN implements NearestNeigh{
     	for (Point point: points)
     		unsortedNodes.add(new Node(point, true, null, null, null));
     	this.root = splitAndAddToTree(unsortedNodes, this.root);
+    	//this can be removed, for debugging purposes only
     	List<Direction> list = new ArrayList<Direction>();
+    	printTree(root, list, 0);
+
     }
     
     /**
