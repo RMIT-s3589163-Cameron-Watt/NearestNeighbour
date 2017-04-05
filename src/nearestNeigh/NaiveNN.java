@@ -31,7 +31,9 @@ public class NaiveNN implements NearestNeigh{
     	for (Point point : points) {
     		double distance = point.distTo(searchTerm);
     		PointAndDistance pad = new PointAndDistance(point, distance);
-    		distances.add(pad);
+    		if (pad.point.cat == searchTerm.cat) {
+    			distances.add(pad);
+    		}
     	}
     	distances = selectionSortByDistance(distances);
     	for (int x = 0; x < k; ++x) 
