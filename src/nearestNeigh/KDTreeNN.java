@@ -12,6 +12,25 @@ public class KDTreeNN implements NearestNeigh{
 	
 	private Node root = null;
 	
+	private void printTree(Node node, List<Direction> visitedDirections, int level) {
+		List<Direction> list = new ArrayList<>();
+		list.addAll(visitedDirections);
+		if (node == null)
+			return;
+		System.out.println();
+		list.add(Direction.RIGHT);
+		for (int x = 0; x < level; ++x) {
+			if (list.get(x) == Direction.RIGHT) 
+				System.out.print("|   ");
+			else
+				System.out.print("    ");
+		}
+		System.out.print("├── " + node.getPoint().id + ", " + node.getPoint().lat + ", " + node.getPoint().lon);
+		printTree(node.getRightChild(), list, level + 1);
+		list.add(level + 1, Direction.LEFT);
+		printTree(node.getLeftChild(), list, level + 1);
+	}
+	
 	/**
 	 * Recursively adds 2D points into a tree structure using a Depth first approach
 	 * The tree structure is accessible via the root node variable
@@ -25,6 +44,7 @@ public class KDTreeNN implements NearestNeigh{
     	for (Point point: points)
     		unsortedNodes.add(new Node(point, true, null, null, null));
     	this.root = splitAndAddToTree(unsortedNodes, this.root);
+    	List<Direction> list = new ArrayList<Direction>();
     }
     
     /**
