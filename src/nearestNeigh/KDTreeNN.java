@@ -177,17 +177,44 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public boolean isPointIn(Point point) {
-        return isPointTheSame(point, root);
-    }
-    
-    private boolean isPointTheSame(Point searchTerm, Node treeNode) {
-    	if (treeNode != null) {
-    		return treeNode.getPoint().equals(searchTerm) || //check itself
-        			isPointTheSame(searchTerm, treeNode.getLeftChild()) || //check left
-        			isPointTheSame(searchTerm, treeNode.getRightChild()); //check right
-    	}
-    	else //reached a leaf
-    		return false;
+
+    	/* BASIC THOUGHT PROCESS 
+    	 * nextNode = root
+    	 * while (nextNode != null) {
+    	 * 	 if point = nextNode.point  ? return true  :  continue  CHECK COMPLETELY
+    	 * 	 if point <= nextNode.point ? getLeftChild()  :  getRightChild()
+    	 * }
+    	 */
+    	
+    	// Need to create a temporary node Object to allow easy access throughout the tree
+    	// NOTE that the parentNode, rightChildNode, leftChildNode references WILL NOT be used
+    	Node tempNode = new Node(point, false, null, null, null);
+		Node nextNode = root;
+		
+		while (nextNode != null) {
+			if (  tempNode.getPoint().equals( nextNode.getPoint() ) ) {
+				return true;
+			}
+			
+			try {
+				if ( tempNode.isGreaterThan( nextNode ) ) {
+					nextNode = nextNode.getRightChild();
+				}
+				/* This else statement will also catch any points with duplicate dimensions
+				 * eg if we have two points with the lat 8 (and different lon values), the 
+				 * second point will ALWAYS be placed on the LEFT branch
+				 */
+				else {
+					nextNode = nextNode.getLeftChild();
+				}
+			} catch (DimensionMismatchException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// Change the dimension as we are descending further through the tree
+			tempNode.changeDimension();
+		}
+        return false;
     }
 
 	public Node getRoot() {
@@ -259,7 +286,7 @@ class Node {
 	}
 	
 	public Point getPoint() {
-		return this.point;
+		return point;
 	}
 
 	public Node getParent() {

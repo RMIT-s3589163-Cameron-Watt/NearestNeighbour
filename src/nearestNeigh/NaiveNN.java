@@ -41,22 +41,30 @@ public class NaiveNN implements NearestNeigh{
 
     @Override
     public boolean addPoint(Point point) {
-        // To be implemented.
-        return false;
+    	if ( points.contains(point) ) {
+    		// Return false if the point is already in the data structure
+    		return false;
+    	}
+    	points.add(point);
+		return true;       
     }
 
     @Override
     public boolean deletePoint(Point point) {
-        // To be implemented.
-        return false;
+    	if ( points.remove(point) ) {
+    		return true;
+    	}
+    	// Return false if the point was NOT found in the data structure
+		return false;
     }
 
     @Override
     public boolean isPointIn(Point point) {
-        // To be implemented.
-        return false;
-    }
-    
+   	if ( points.contains(point) ) {
+    		return true;
+    	}
+    	return false;
+    }    
     
     private List<PointAndDistance> selectionSortByDistance(List<PointAndDistance> array) {
         for (int j = 0; j < array.size() - 1; ++j) { // visit each item in the list
