@@ -11,7 +11,6 @@ import java.util.List;
 public class KDTreeNN implements NearestNeigh{
 	
 	private Node root = null;
-	private List<NodeAndDistance> closest = new ArrayList<>();
 	
 	/**
 	 * Recursively adds 2D points into a tree structure using a Depth first approach
@@ -36,54 +35,73 @@ public class KDTreeNN implements NearestNeigh{
      * @param A Node object that will be the parent node of the return value
      * @return Node object chosen to split the collection of nodes
      */
-    public Node splitAndAddToTree(List<Node> nodes, Node parent) {
+    public Node splitAndAddToTree(List<Node> allNodes, Node parent) {
+    	List<Node> nodes = new ArrayList<>();
+    	nodes.addAll(allNodes);
+    	System.out.println("-----------------Starting a new loop. Current list size: " + nodes.size());
     	if (nodes.isEmpty())
     		return null;
     	List<Node> sortedNodes = nodeSelectionSort(nodes); //sort the nodes
     	int middleIndex = sortedNodes.size() / 2; //find the middle node
+    	List<Node> leftSublist;
+    	List<Node> rightSublist;
     	Node middleNode = sortedNodes.remove(middleIndex); //removes from the list AND returns the object
+    	leftSublist = nodes.subList(0, middleIndex);
+    	rightSublist = nodes.subList(middleIndex, nodes.size());
+    	System.out.println("Middle Index: " + middleIndex);
+    	System.out.println("leftsize: " + leftSublist.size());
+    	System.out.println("rightsize: " + rightSublist.size());
     	middleNode.setParent(parent); //Connect to the tree
     	for (Node node: sortedNodes) //change isVertical in every other node
     		node.changeDimension();
     	//recursive call to left and right sides
     	middleNode.setLeftChild(splitAndAddToTree(sortedNodes.subList(0, middleIndex), middleNode)); //left subtree
+    	System.out.println("SortedNodes list current size: " + sortedNodes.size());
     	middleNode.setRightChild(splitAndAddToTree(sortedNodes.subList(middleIndex, sortedNodes.size()), middleNode)); //right subtree
     	return middleNode;
     }
 
     @Override
     public List<Point> search(Point searchTerm, int k) {
-    	//call findKNodes()
-        return new ArrayList<>();
+    	List<NodeAndDistance> closest = new ArrayList<>();
+    	closest = findKNodes(root, new Node(searchTerm, true, null, null, null), k, closest);
+    	List<Point> KPoints = new ArrayList<>(); 
+    	for (NodeAndDistance n : closest.subList(0, k))
+    		KPoints.add(n.node.getPoint());
+        return KPoints;
     }
     
-    public void findKNodes(Node currentTreeNode, Node searchTerm, int k) {
-    	//should I change dimension in here somewhere?
+    private List<NodeAndDistance> findKNodes(Node currentTreeNode, Node searchTerm, int k, List<NodeAndDistance> closest) {
     	double currentDistance = currentTreeNode.getPoint().distTo(searchTerm.getPoint());
-    	NodeAndDistance newAddition = new NodeAndDistance(currentTreeNode, currentDistance);
-    	if (closest.size() < k || currentDistance < closest.get(k).distance) {
-    		closest.add(newAddition);
-    		closest = selectionSortByDistance(closest);
+    	NodeAndDistance currentNodeAndDistance = new NodeAndDistance(currentTreeNode, currentDistance);
+    	List <NodeAndDistance> updatedClosest = closest;
+    	if (closest.size() < k || currentDistance < closest.get(k - 1).distance) {
+    		closest.add(currentNodeAndDistance);
+    		updatedClosest = selectionSortByDistance(closest);
     	}
     	Direction d = currentTreeNode.chooseDirection(searchTerm);
-    	if (currentTreeNode.getChild(d) == null) {
-    		return;
+    	if (currentTreeNode.getChild(d) != null)
+    		updatedClosest = findKNodes(currentTreeNode.getChild(d), searchTerm, k, updatedClosest);
+    	//Here we return from the first recursive calls. Check if we need to go the other direction
+    	Point darkSide = createStraightLinePoint(currentTreeNode, searchTerm);
+    	Double distanceToOtherSide = searchTerm.getPoint().distTo(darkSide);
+    	if (currentDistance > distanceToOtherSide && currentTreeNode.getChild(d.getOtherDirection()) != null) {
+    		updatedClosest = findKNodes(currentTreeNode.getChild(d.getOtherDirection()), searchTerm, k, updatedClosest);
     	}
-    	//check if we need to go the other direction
+    	return updatedClosest;
+    }
+    
+    private Point createStraightLinePoint(Node currentTreeNode, Node searchTerm) {
     	Point darkSide = new Point();
-    	//darkSide = createStraightLinePoint(current, search);
     	if (currentTreeNode.getDirection()) { //if x axis
     		darkSide.lon = searchTerm.getPoint().lon;
     		darkSide.lat = currentTreeNode.getCoordinate();
     	}
-    	else {
+    	else { //y axis
     		darkSide.lat = searchTerm.getPoint().lat;
     		darkSide.lon = currentTreeNode.getCoordinate();
     	}
-    	Double distanceToOtherSide = searchTerm.getPoint().distTo(darkSide);
-    	if (currentDistance > distanceToOtherSide) {
-    		findKNodes(currentTreeNode.getChild(d.getOtherDirection()), searchTerm, k);
-    	}
+    	return darkSide;
     }
     
     private List<NodeAndDistance> selectionSortByDistance(List<NodeAndDistance> array) {
@@ -151,7 +169,7 @@ public class KDTreeNN implements NearestNeigh{
         return isPointTheSame(point, root);
     }
     
-    public boolean isPointTheSame(Point searchTerm, Node treeNode) {
+    private boolean isPointTheSame(Point searchTerm, Node treeNode) {
     	if (treeNode != null) {
     		return treeNode.getPoint().equals(searchTerm) || //check itself
         			isPointTheSame(searchTerm, treeNode.getLeftChild()) || //check left
