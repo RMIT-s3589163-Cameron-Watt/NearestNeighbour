@@ -38,25 +38,16 @@ public class KDTreeNN implements NearestNeigh{
     public Node splitAndAddToTree(List<Node> allNodes, Node parent) {
     	List<Node> nodes = new ArrayList<>();
     	nodes.addAll(allNodes);
-    	System.out.println("-----------------Starting a new loop. Current list size: " + nodes.size());
     	if (nodes.isEmpty())
     		return null;
     	List<Node> sortedNodes = nodeSelectionSort(nodes); //sort the nodes
     	int middleIndex = sortedNodes.size() / 2; //find the middle node
-    	List<Node> leftSublist;
-    	List<Node> rightSublist;
     	Node middleNode = sortedNodes.remove(middleIndex); //removes from the list AND returns the object
-    	leftSublist = nodes.subList(0, middleIndex);
-    	rightSublist = nodes.subList(middleIndex, nodes.size());
-    	System.out.println("Middle Index: " + middleIndex);
-    	System.out.println("leftsize: " + leftSublist.size());
-    	System.out.println("rightsize: " + rightSublist.size());
     	middleNode.setParent(parent); //Connect to the tree
     	for (Node node: sortedNodes) //change isVertical in every other node
     		node.changeDimension();
     	//recursive call to left and right sides
     	middleNode.setLeftChild(splitAndAddToTree(sortedNodes.subList(0, middleIndex), middleNode)); //left subtree
-    	System.out.println("SortedNodes list current size: " + sortedNodes.size());
     	middleNode.setRightChild(splitAndAddToTree(sortedNodes.subList(middleIndex, sortedNodes.size()), middleNode)); //right subtree
     	return middleNode;
     }
