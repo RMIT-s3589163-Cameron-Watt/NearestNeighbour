@@ -63,19 +63,19 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public List<Point> search(Point searchTerm, int k) {
-    	List<NodeAndDistance> closest = new ArrayList<>();
-    	closest = findKNodes(root, new Node(searchTerm, true, null, null, null), k, closest);
-    	List<Point> KPoints = new ArrayList<>(); 
+    	List<NodeAndDistance> closest = findKNodes(root, new Node(searchTerm, true, null, null, null), k, new ArrayList<>());
+    	List<Point> kPoints = new ArrayList<>(); 
     	for (NodeAndDistance n : closest.subList(0, k))
-    		KPoints.add(n.node.getPoint());
-        return KPoints;
+    		kPoints.add(n.node.getPoint());
+        return kPoints;
     }
     
     private List<NodeAndDistance> findKNodes(Node currentTreeNode, Node searchTerm, int k, List<NodeAndDistance> closest) {
+    	boolean sameCategory = searchTerm.getPoint().cat == currentTreeNode.getPoint().cat;
     	double currentDistance = currentTreeNode.getPoint().distTo(searchTerm.getPoint());
     	NodeAndDistance currentNodeAndDistance = new NodeAndDistance(currentTreeNode, currentDistance);
     	List <NodeAndDistance> updatedClosest = closest;
-    	if (closest.size() < k || currentDistance < closest.get(k - 1).distance) {
+    	if (sameCategory && (closest.size() < k || currentDistance < closest.get(k - 1).distance)) {
     		closest.add(currentNodeAndDistance);
     		updatedClosest = selectionSortByDistance(closest);
     	}
