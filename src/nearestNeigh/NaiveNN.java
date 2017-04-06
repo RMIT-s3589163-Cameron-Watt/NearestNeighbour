@@ -7,7 +7,7 @@ import java.util.ListIterator;
 /**
  * This class is required to be implemented.  Naive approach implementation.
  *
- * @author Jeffrey, Youhan
+ * @author Jeffrey, Youhan + StockWell, Patrick + Watt, Cameron
  */
 public class NaiveNN implements NearestNeigh{
 	

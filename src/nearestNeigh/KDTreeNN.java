@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * This class is required to be implemented.  Kd-tree implementation.
  *
- * @author Jeffrey, Youhan
+ * @author Jeffrey, Youhan + StockWell, Patrick + Watt, Cameron
  */
 public class KDTreeNN implements NearestNeigh{
 	

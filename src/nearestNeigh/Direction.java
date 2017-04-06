@@ -1,5 +1,10 @@
 package nearestNeigh;
 
+/**
+ * Enum for possible Directions
+ * 
+ * @author Stockwell, Patrick
+ */
 public enum Direction {
 	LEFT, 
 	RIGHT;
