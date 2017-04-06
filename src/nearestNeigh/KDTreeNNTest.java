@@ -15,18 +15,25 @@ public class KDTreeNNTest {
 	KDTreeNN agent = new KDTreeNN();
 	
 	@Before
-	public void AsetupPoints() {
+	public void setupPoints() {
 		System.out.println(" ");
 		System.out.println("Starting to add points");
-		points.add((new Point("id0", Point.parseCat("restaurant"), -37.3159209067, 147.812377025)));
-		points.add((new Point("id1", Point.parseCat("restaurant"), -33.3159209067, 146.441243728)));
-		points.add((new Point("id2", Point.parseCat("restaurant"), -32.3159209067, 142.812377235)));
-		points.add((new Point("id3", Point.parseCat("restaurant"), -31.3159209067, 143.512377638)));
-		points.add((new Point("id4", Point.parseCat("restaurant"), -35.3159209067, 144.912347025)));
-		points.add((new Point("id5", Point.parseCat("restaurant"), -36.3159209067, 137.882372325)));
-		points.add((new Point("id6", Point.parseCat("restaurant"), -39.3159209067, 127.812377025)));
-		points.add((new Point("id7", Point.parseCat("restaurant"), -50.3159209067, 119.222377025)));
-		points.add((new Point("id8", Point.parseCat("restaurant"), -40.3159209067, 148.772377025)));
+		
+		points.add((new Point("id0", Point.parseCat("restaurant"), 3, 3)));
+		points.add((new Point("id1", Point.parseCat("restaurant"), 2.5, 3)));
+		points.add((new Point("id2", Point.parseCat("restaurant"), 3.5, 3)));
+		points.add((new Point("id3", Point.parseCat("restaurant"), 1, 1)));
+		points.add((new Point("id4", Point.parseCat("restaurant"), 1, 5)));
+		points.add((new Point("id5", Point.parseCat("restaurant"), 5, 1)));
+		points.add((new Point("id6", Point.parseCat("restaurant"), 5, 5)));
+		points.add((new Point("id7", Point.parseCat("restaurant"), 0, 0)));
+		points.add((new Point("id8", Point.parseCat("restaurant"), 2, 2)));
+		points.add((new Point("id9", Point.parseCat("restaurant"), 0, 5)));
+		points.add((new Point("id10", Point.parseCat("restaurant"), 2, 4)));
+		points.add((new Point("id11", Point.parseCat("restaurant"), 4, 2)));
+		points.add((new Point("id12", Point.parseCat("restaurant"), 6, 0)));
+		points.add((new Point("id13", Point.parseCat("restaurant"), 4, 4)));
+		points.add((new Point("id14", Point.parseCat("restaurant"), 6, 6)));
 		agent.buildIndex(points);
 	}
 	
@@ -35,6 +42,22 @@ public class KDTreeNNTest {
 	
 	@Test
 	public void test2() {	// addPointTest()
-
+		System.out.println("Testing addPoint(point) for duplicate and non-duplicate points");
+		Point duplicatePoint = new Point("id8", Point.parseCat("restaurant"), 2, 2);
+		Point newPoint = new Point("id15", Point.parseCat("restaurant"), 3, 6);
+		assertFalse(agent.addPoint(duplicatePoint));
+		assertTrue(agent.addPoint(newPoint));
+		
+		List<Direction> list = new ArrayList<>();
+    	agent.printTree( agent.getRoot(), list, 0);
+	}
+	
+	@Test
+	public void test4() {  // isPointIn(Point point)
+		System.out.println("Testing isPointIn(point) for duplicate and non-duplicate points");
+		Point duplicatePoint = new Point("id8", Point.parseCat("restaurant"), 2, 2);
+		Point newPoint = new Point("id15", Point.parseCat("restaurant"), 3, 6);
+		assertTrue(agent.isPointIn(duplicatePoint));
+		assertFalse(agent.isPointIn(newPoint));
 	}
 }
