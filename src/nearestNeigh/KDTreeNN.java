@@ -25,7 +25,7 @@ public class KDTreeNN implements NearestNeigh{
 			else
 				System.out.print("    ");
 		}
-		System.out.print("├── " + node.getPoint().id + ", " + node.getPoint().lat + ", " + node.getPoint().lon);
+		System.out.print("+── " + node.getPoint().id + ", " + node.getPoint().lat + ", " + node.getPoint().lon);
 		printTree(node.getRightChild(), list, level + 1);
 		list.add(level + 1, Direction.LEFT);
 		printTree(node.getLeftChild(), list, level + 1);
