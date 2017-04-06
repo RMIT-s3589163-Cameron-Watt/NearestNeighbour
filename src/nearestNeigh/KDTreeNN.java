@@ -173,8 +173,38 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public boolean deletePoint(Point point) {
-    	// To be implemented.
-        return false;
+    	Node nodeToRemove = findNode(new Node(point, true, null, null, null), root);
+    	if (nodeToRemove == null)
+    		return false;
+    	if (nodeToRemove.hasBothChildren()) {
+    		//remove somehow
+    	}
+    	else if (nodeToRemove.hasOneChild()) {
+    		//remove somehow
+    	}
+    	else {
+    		//remove somehow
+    	}
+        return true;
+    }
+    
+    private Node findNode(Node searchTerm, Node treeNode) {
+    	Node foundNode = null;
+    	if (searchTerm.getPoint().equals(treeNode.getPoint())) { 
+    		foundNode = treeNode;
+    	}
+    	else if (searchTerm.getCoordinate() < treeNode.getCoordinate() && treeNode.getLeftChild() != null) {
+    		searchTerm.changeDimension();
+    		foundNode = findNode(searchTerm, treeNode.getLeftChild());
+    	}
+    	else if (searchTerm.getCoordinate() > treeNode.getCoordinate() && treeNode.getRightChild() != null) {
+    		searchTerm.changeDimension();
+    		foundNode = findNode(searchTerm, treeNode.getRightChild());
+    	}
+    	else {
+    		foundNode = null;
+    	}
+    	return foundNode;
     }
 
     @Override
@@ -351,6 +381,14 @@ class Node {
 		}
 		else
 			return Direction.RIGHT;
+	}
+	
+	public boolean hasBothChildren() {
+		return (leftChild != null && rightChild != null);
+	}
+	
+	public boolean hasOneChild() {
+		return (leftChild != null || rightChild != null);
 	}
 }
 
