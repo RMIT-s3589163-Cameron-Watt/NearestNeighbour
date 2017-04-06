@@ -6,13 +6,14 @@ import java.util.List;
 /**
  * This class is required to be implemented.  Kd-tree implementation.
  *
- * @author Jeffrey, Youhan
+ * @author Jeffrey, Youhan + StockWell, Patrick + Watt, Cameron
  */
 public class KDTreeNN implements NearestNeigh{
 	
 	private Node root = null;
 	
-	private void printTree(Node node, List<Direction> visitedDirections, int level) {
+	// Changed to test in the Test file
+	public void printTree(Node node, List<Direction> visitedDirections, int level) {
 		List<Direction> list = new ArrayList<>();
 		list.addAll(visitedDirections);
 		if (node == null)
@@ -45,8 +46,8 @@ public class KDTreeNN implements NearestNeigh{
     		unsortedNodes.add(new Node(point, true, null, null, null));
     	this.root = splitAndAddToTree(unsortedNodes, this.root);
     	//this can be removed, for debugging purposes only
-    	List<Direction> list = new ArrayList<>();
-    	printTree(root, list, 0);
+    	//List<Direction> list = new ArrayList<>();
+    	//printTree(root, list, 0);
     }
     
     /**
@@ -145,12 +146,16 @@ public class KDTreeNN implements NearestNeigh{
     public boolean addPoint(Point point) {
     	Node nodeToAdd = new Node(point, true, null, null, null); //Wrap the point in a Node
     	Node nodeFromTree = root; //Pointer node to search the tree for insertion point
-    	Node lastFoundNode = root; //Trails the pointer to hold reference to the tree
+    	Node lastFoundNode = null; //Trails the pointer to hold reference to the tree
     	boolean travelledLeft = true; //Remembers the last direction travelled
     	while(nodeFromTree != null) {
 			lastFoundNode = nodeFromTree;
     		try {
-				if(nodeToAdd.isGreaterThan(nodeFromTree)) { //go right subtree
+    			// If the current node is already in the data structure
+    			if(nodeToAdd.getPoint().equals(nodeFromTree.getPoint())) {
+    				return false;
+    			}    				
+    			else if(nodeToAdd.isGreaterThan(nodeFromTree)) { //go right subtree
 					nodeFromTree = nodeFromTree.getRightChild();
 					travelledLeft = false;
 				}
@@ -182,7 +187,7 @@ public class KDTreeNN implements NearestNeigh{
     	else if (nodeToRemove.hasOneChild()) {
     		//remove somehow
     	}
-    	else {
+    	else { // If node has no children
     		//remove somehow
     	}
         return true;
@@ -220,7 +225,7 @@ public class KDTreeNN implements NearestNeigh{
     	
     	// Need to create a temporary node Object to allow easy access throughout the tree
     	// NOTE that the parentNode, rightChildNode, leftChildNode references WILL NOT be used
-    	Node tempNode = new Node(point, false, null, null, null);
+    	Node tempNode = new Node(point, true, null, null, null);
 		Node nextNode = root;
 		
 		while (nextNode != null) {
