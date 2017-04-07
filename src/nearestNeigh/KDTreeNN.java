@@ -178,20 +178,105 @@ public class KDTreeNN implements NearestNeigh{
 
     @Override
     public boolean deletePoint(Point point) {
-    	Node nodeToRemove = findNode(new Node(point, true, null, null, null), root);
+    	Node nodeToRemove = findNodeNONRec( new Node(point, true, null, null, null), root);
+    	// If the node was NOT found
     	if (nodeToRemove == null)
     		return false;
-    	if (nodeToRemove.hasBothChildren()) {
-    		//remove somehow
+    	
+    	// to avoid multiple calls to the getParent()
+    	Node parentNode = nodeToRemove.getParent();
+    		
+    	if (nodeToRemove.hasBothChildren()) { // TODO ########  setting    the isVertical ###
+    		// Check if it is the root
+    		if ( parentNode == null ) {
+    			// ??????????????????????????????????????????????????????????????????
+    		}
+    		// TODO
+    		
     	}
-    	else if (nodeToRemove.hasOneChild()) {
-    		//remove somehow
+    	else if (nodeToRemove.hasOneChild()) {		// TODO ########  setting    the isVertical ###
+    		// Check if it is the root
+    		if ( parentNode == null ) {
+    			// Find the child node of the root
+    			if ( nodeToRemove.getLeftChild() != null ) {
+    				root = nodeToRemove.getLeftChild();
+    			}
+    			else { // If the child node is the right child of the root
+    				root = nodeToRemove.getRightChild();
+    			}
+    			root.changeDimension();
+    		}
+    		
+    		// Check if the nodeToRemove is the left or right child of the parent
+    		if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) {
+    			// Find the child node of the nodeToRemove
+    			if ( nodeToRemove.getLeftChild() != null ) {
+    				parentNode.setLeftChild( nodeToRemove.getLeftChild() );
+    				parentNode.getLeftChild().changeDimension();
+    			}
+    			else { // if the node to keep is the right child of nodeToRemove
+    				parentNode.setLeftChild( nodeToRemove.getRightChild() );
+    				parentNode.getLeftChild().changeDimension();
+    			}
+    		}
+    		else { // if the nodeToRemove is the right child of the parent
+    			// Find the child node of the nodeToRemove
+    			if ( nodeToRemove.getLeftChild() != null ) {
+    				parentNode.setRightChild( nodeToRemove.getLeftChild() );
+    				parentNode.getRightChild().changeDimension();
+    			}
+    			else { // if the node to keep is the right child of nodeToRemove
+    				parentNode.setRightChild( nodeToRemove.getRightChild() );
+    				parentNode.getRightChild().changeDimension();
+    			}
+    		}
     	}
-    	else { // If node has no children
-    		//remove somehow
+    	else { // If node has no children  
+    		// Check if it is the root
+    		if ( parentNode == null ) {
+    			root = null;
+    		}
+    		
+    		// Check if the nodeToRemove is the left or right child of the parent
+    		if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) {
+    			parentNode.setLeftChild(null);
+    		}
+    		else if ( parentNode.getRightChild().getPoint().equals( nodeToRemove.getPoint() ) ) {
+    			parentNode.setRightChild(null);
+    		}
     	}
         return true;
     }
+    
+    
+    private Node findNodeNONRec( Node nodeToFind, Node nextNode )
+    {
+		while (nextNode != null) {
+			if (  nodeToFind.getPoint().equals( nextNode.getPoint() ) ) {
+				return nextNode;
+			}
+			
+			try {
+				if ( nodeToFind.isGreaterThan( nextNode ) ) {
+					nextNode = nextNode.getRightChild();
+				}
+				/* This else statement will also catch any points with duplicate dimensions
+				 * eg if we have two points with the lat 8 (and different lon values), the 
+				 * second point will ALWAYS be placed on the LEFT branch
+				 */
+				else {
+					nextNode = nextNode.getLeftChild();
+				}
+			} catch (DimensionMismatchException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// Change the dimension as we are descending further through the tree
+			nodeToFind.changeDimension();
+		}
+        return null;
+    }
+    
     
     private Node findNode(Node searchTerm, Node treeNode) {
     	Node foundNode = null;
