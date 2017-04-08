@@ -45,6 +45,7 @@ public class KDTreeNN implements NearestNeigh{
     	for (Point point: points)
     		unsortedNodes.add(new Node(point, true, null, null, null));
     	this.root = splitAndAddToTree(unsortedNodes, this.root);
+    	List<Direction> list = new ArrayList<>();
     }
     
     /**
@@ -176,74 +177,57 @@ public class KDTreeNN implements NearestNeigh{
     @Override
     public boolean deletePoint(Point point) {
     	Node nodeToRemove = findNodeNONRec( new Node(point, true, null, null, null), root);
-    	// If the node was NOT found
     	if (nodeToRemove == null)
     		return false;
-    	
-    	// to avoid multiple calls to the getParent()
     	Node parentNode = nodeToRemove.getParent();
-    		
-    	if (nodeToRemove.hasBothChildren()) { // TODO ########  setting    the isVertical ###
-    		// Check if it is the root
-    		if ( parentNode == null ) {
-    			// ??????????????????????????????????????????????????????????????????
-    		}
-    		// TODO
-    		
+    	if (nodeToRemove.hasBothChildren()) {
+    		Node replacement = getLeftmostNode(nodeToRemove.getRightChild());
+    		Point tempPoint = nodeToRemove.getPoint();
+    		nodeToRemove.setPoint(replacement.getPoint());
+    		replacement.setPoint(tempPoint);
+    		deletePoint(replacement.getPoint());
     	}
-    	else if (nodeToRemove.hasOneChild()) {		// TODO ########  setting    the isVertical ###
-    		// Check if it is the root
-    		if ( parentNode == null ) {
-    			// Find the child node of the root
-    			if ( nodeToRemove.getLeftChild() != null ) {
+    	else if (nodeToRemove.hasOneChild()) {
+    		if ( parentNode == null ) { // Check if it is the root
+    			if ( nodeToRemove.getLeftChild() != null ) 
     				root = nodeToRemove.getLeftChild();
-    			}
-    			else { // If the child node is the right child of the root
+    			else 
     				root = nodeToRemove.getRightChild();
-    			}
-    			root.changeDimension();
+    			changeAllDimensionsBelow(root);
     		}
-    		
-    		// Check if the nodeToRemove is the left or right child of the parent
-    		if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) {
-    			// Find the child node of the nodeToRemove
-    			if ( nodeToRemove.getLeftChild() != null ) {
+    		else if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) { // nodeToRemove is the left child of the parent
+    			if ( nodeToRemove.getLeftChild() != null ) // Find the child node of the nodeToRemove
     				parentNode.setLeftChild( nodeToRemove.getLeftChild() );
-    				parentNode.getLeftChild().changeDimension();
-    			}
-    			else { // if the node to keep is the right child of nodeToRemove
+    			else // if the node to keep is the right child of nodeToRemove
     				parentNode.setLeftChild( nodeToRemove.getRightChild() );
-    				parentNode.getLeftChild().changeDimension();
-    			}
+    			changeAllDimensionsBelow(parentNode.getLeftChild());
     		}
-    		else { // if the nodeToRemove is the right child of the parent
+    		else { // nodeToRemove is the right child of the parent
     			// Find the child node of the nodeToRemove
-    			if ( nodeToRemove.getLeftChild() != null ) {
+    			if ( nodeToRemove.getLeftChild() != null )
     				parentNode.setRightChild( nodeToRemove.getLeftChild() );
-    				parentNode.getRightChild().changeDimension();
-    			}
-    			else { // if the node to keep is the right child of nodeToRemove
+    			else // if the node to keep is the right child of nodeToRemove
     				parentNode.setRightChild( nodeToRemove.getRightChild() );
-    				parentNode.getRightChild().changeDimension();
-    			}
+    			changeAllDimensionsBelow(parentNode.getRightChild());
     		}
     	}
     	else { // If node has no children  
-    		// Check if it is the root
-    		if ( parentNode == null ) {
+    		if ( parentNode == null ) // Check if it is the root
     			root = null;
-    		}
-    		
-    		// Check if the nodeToRemove is the left or right child of the parent
-    		if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) {
-    			parentNode.setLeftChild(null);
-    		}
-    		else if ( parentNode.getRightChild().getPoint().equals( nodeToRemove.getPoint() ) ) {
-    			parentNode.setRightChild(null);
-    		}
+    		Direction d = parentNode.getDirectionOfChild(nodeToRemove); //link parent and child
+    		parentNode.setChild(d, null);
     		nodeToRemove.setParent(null);
     	}
         return true;
+    }
+    
+    private Node getLeftmostNode(Node n) {
+    	Node leftmostNode;
+    	if (n.getLeftChild() == null)
+    		leftmostNode = n;
+    	else
+    		leftmostNode = getLeftmostNode(n.getLeftChild());
+    	return leftmostNode;
     }
     
     
@@ -413,12 +397,16 @@ class Node {
 		this.setLeftChild(leftChild);
 		this.setRightChild(rightChild);
 	}
-	
+
 	public Point getPoint() {
 		return point;
 	}
+	
+	public void setPoint(Point point) {
+		this.point = point;
+	}
 
-	public Node getParent() {
+ 	public Node getParent() {
 		return parent;
 	}
 
@@ -458,6 +446,10 @@ class Node {
 		return this.isVertical;
 	}
 	
+	public void setDirection(boolean d) {
+		this.isVertical = d;
+	}
+	
 	public boolean isGreaterThan(Node nodeFromTree) throws DimensionMismatchException {
 		if (nodeFromTree.isVertical != this.isVertical)
 			throw new DimensionMismatchException();
@@ -470,6 +462,13 @@ class Node {
 		}
 		else
 			return this.rightChild;
+	}
+	
+	public void setChild (Direction d, Node child) {
+		if (d == Direction.LEFT)
+			this.leftChild = child;
+		else
+			this.rightChild = child;
 	}
 	
 	public Direction chooseDirection(Node searchNode) {
@@ -486,6 +485,14 @@ class Node {
 	
 	public boolean hasOneChild() {
 		return (leftChild != null || rightChild != null);
+	}
+	
+	public Direction getDirectionOfChild(Node nodeToRemove) {
+		if (this.leftChild == nodeToRemove)
+			return Direction.LEFT;
+		else if (this.rightChild == nodeToRemove)
+			return Direction.RIGHT;
+		return null;
 	}
 }
 
