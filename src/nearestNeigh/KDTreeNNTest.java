@@ -60,4 +60,35 @@ public class KDTreeNNTest {
 		assertTrue(agent.isPointIn(duplicatePoint));
 		assertFalse(agent.isPointIn(newPoint));
 	}
+	
+	@Test
+	public void deleteNodeWithZeroChildrenTest() {
+		List<Direction> d = new ArrayList<>();
+		d.add(Direction.LEFT);
+		Point pointToDelete = new Point("id8", Point.parseCat("restaurant"), 2, 2);
+		agent.deletePoint(pointToDelete);
+		assertFalse(agent.isPointIn(pointToDelete));
+	}
+	
+	@Test
+	public void deleteNodeWithOneChildTest() {
+		List<Direction> d = new ArrayList<>();
+		d.add(Direction.LEFT);
+		Point pointToDelete = new Point("id8", Point.parseCat("restaurant"), 2, 2);
+		Point nextPointToDelete = new Point("id3", Point.parseCat("restaurant"), 1, 1);
+		agent.deletePoint(pointToDelete);
+		agent.deletePoint(nextPointToDelete);
+		assertFalse(agent.isPointIn(nextPointToDelete));
+	}
+	
+	@Test
+	public void deleteNodeWithTwoChildrenTest() {
+		List<Direction> d = new ArrayList<>();
+		d.add(Direction.LEFT);
+		agent.printTree(agent.getRoot(), d, 0);
+		Point pointToDelete = new Point("id0", Point.parseCat("restaurant"), 3, 3);
+		agent.deletePoint(pointToDelete);
+		agent.printTree(agent.getRoot(), d, 0);
+		assertFalse(agent.isPointIn(pointToDelete));
+	}
 }
