@@ -267,7 +267,7 @@ public class KDTreeNN implements NearestNeigh{
 					nextNode = nextNode.getLeftChild();
 				}
 			} catch (DimensionMismatchException e) {
-				// TODO Auto-generated catch block
+				System.out.println("Invalid dimension comparision ie latitude compared to longitude");
 				e.printStackTrace();
 			}
 			// Change the dimension as we are descending further through the tree
@@ -276,7 +276,8 @@ public class KDTreeNN implements NearestNeigh{
         return null;
     }
     
-    
+    // Recursive method written by Pat, that was replaced with the Non-Recursive method above
+    // due to performance issues
     private Node findNode(Node searchTerm, Node treeNode) {
     	Node foundNode = null;
     	if (searchTerm.getPoint().equals(treeNode.getPoint())) { 
@@ -338,7 +339,7 @@ public class KDTreeNN implements NearestNeigh{
 					nextNode = nextNode.getLeftChild();
 				}
 			} catch (DimensionMismatchException e) {
-				// TODO Auto-generated catch block
+				System.out.println("Invalid dimension comparision ie latitude compared to longitude");
 				e.printStackTrace();
 			}
 			// Change the dimension as we are descending further through the tree
