@@ -296,6 +296,15 @@ public class KDTreeNN implements NearestNeigh{
     	}
     	return foundNode;
     }
+    
+    private void changeAllDimensionsBelow(Node topNode) {
+    	if (topNode == null) {
+    		return;
+    	}
+    	topNode.changeDimension();
+    	changeAllDimensionsBelow(topNode.getLeftChild());
+    	changeAllDimensionsBelow(topNode.getRightChild());
+    }
 
     @Override
     public boolean isPointIn(Point point) {
