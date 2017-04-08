@@ -179,46 +179,63 @@ public class KDTreeNN implements NearestNeigh{
     	Node nodeToRemove = findNodeNONRec( new Node(point, true, null, null, null), root);
     	if (nodeToRemove == null)
     		return false;
-    	Node parentNode = nodeToRemove.getParent();
     	if (nodeToRemove.hasBothChildren()) {
-    		Node replacement = getLeftmostNode(nodeToRemove.getRightChild());
-    		Point tempPoint = nodeToRemove.getPoint();
-    		nodeToRemove.setPoint(replacement.getPoint());
-    		replacement.setPoint(tempPoint);
-    		deletePoint(replacement.getPoint());
+    		removeNodeWithTwoChildren(nodeToRemove);
     	}
     	else if (nodeToRemove.hasOneChild()) {
-    		if ( parentNode == null ) { // Check if it is the root
-    			if ( nodeToRemove.getLeftChild() != null ) 
-    				root = nodeToRemove.getLeftChild();
-    			else 
-    				root = nodeToRemove.getRightChild();
-    			changeAllDimensionsBelow(root);
-    		}
-    		else if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) { // nodeToRemove is the left child of the parent
-    			if ( nodeToRemove.getLeftChild() != null ) // Find the child node of the nodeToRemove
-    				parentNode.setLeftChild( nodeToRemove.getLeftChild() );
-    			else // if the node to keep is the right child of nodeToRemove
-    				parentNode.setLeftChild( nodeToRemove.getRightChild() );
-    			changeAllDimensionsBelow(parentNode.getLeftChild());
-    		}
-    		else { // nodeToRemove is the right child of the parent
-    			// Find the child node of the nodeToRemove
-    			if ( nodeToRemove.getLeftChild() != null )
-    				parentNode.setRightChild( nodeToRemove.getLeftChild() );
-    			else // if the node to keep is the right child of nodeToRemove
-    				parentNode.setRightChild( nodeToRemove.getRightChild() );
-    			changeAllDimensionsBelow(parentNode.getRightChild());
-    		}
+    		removeNodeWithOneChild(nodeToRemove);
     	}
     	else { // If node has no children  
-    		if ( parentNode == null ) // Check if it is the root
-    			root = null;
-    		Direction d = parentNode.getDirectionOfChild(nodeToRemove); //link parent and child
-    		parentNode.setChild(d, null);
-    		nodeToRemove.setParent(null);
+    		removeNodeWithZeroChildren(nodeToRemove);
     	}
         return true;
+    }
+    
+    private void removeNodeWithTwoChildren(Node nodeToRemove) {
+    	Node replacement = getLeftmostNode(nodeToRemove.getRightChild());
+		Point tempPoint = nodeToRemove.getPoint();
+		nodeToRemove.setPoint(replacement.getPoint());
+		replacement.setPoint(tempPoint);
+		if (replacement.hasOneChild())
+			removeNodeWithOneChild(replacement);
+		else
+			removeNodeWithZeroChildren(replacement);
+    }
+    
+    private void removeNodeWithOneChild(Node nodeToRemove) {
+    	Node parentNode = nodeToRemove.getParent();
+    	if ( parentNode == null ) { // Check if it is the root
+			if ( nodeToRemove.getLeftChild() != null ) 
+				root = nodeToRemove.getLeftChild();
+			else 
+				root = nodeToRemove.getRightChild();
+			changeAllDimensionsBelow(root);
+		}
+    	// nodeToRemove is the left child of the parent
+		else if ( parentNode.getLeftChild().getPoint().equals( nodeToRemove.getPoint() ) ) { 
+			if ( nodeToRemove.getLeftChild() != null ) // Find the child node of the nodeToRemove
+				parentNode.setLeftChild( nodeToRemove.getLeftChild() );
+			else // if the node to keep is the right child of nodeToRemove
+				parentNode.setLeftChild( nodeToRemove.getRightChild() );
+			changeAllDimensionsBelow(parentNode.getLeftChild());
+		}
+		else { // nodeToRemove is the right child of the parent
+			// Find the child node of the nodeToRemove
+			if ( nodeToRemove.getLeftChild() != null )
+				parentNode.setRightChild( nodeToRemove.getLeftChild() );
+			else // if the node to keep is the right child of nodeToRemove
+				parentNode.setRightChild( nodeToRemove.getRightChild() );
+			changeAllDimensionsBelow(parentNode.getRightChild());
+		}
+    }
+    
+    private void removeNodeWithZeroChildren(Node nodeToRemove) {
+    	Node parentNode = nodeToRemove.getParent();
+    	if ( parentNode == null ) // Check if it is the root
+			root = null;
+		Direction d = parentNode.getDirectionOfChild(nodeToRemove); //link parent and child
+		parentNode.setChild(d, null);
+		nodeToRemove.setParent(null);
     }
     
     private Node getLeftmostNode(Node n) {
