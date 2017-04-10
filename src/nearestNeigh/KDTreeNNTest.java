@@ -34,6 +34,24 @@ public class KDTreeNNTest {
 		points.add((new Point("id12", Point.parseCat("restaurant"), 6, 0)));
 		points.add((new Point("id13", Point.parseCat("restaurant"), 4, 4)));
 		points.add((new Point("id14", Point.parseCat("restaurant"), 6, 6)));
+		
+		// Testing tree creation with duplicate x values
+		/*points.add((new Point("id0", Point.parseCat("restaurant"), 3, 3)));
+		points.add((new Point("id1", Point.parseCat("restaurant"), 3, 3)));
+		points.add((new Point("id2", Point.parseCat("restaurant"), 3, 3)));
+		points.add((new Point("id3", Point.parseCat("restaurant"), 3, 1)));
+		points.add((new Point("id4", Point.parseCat("restaurant"), 3, 5)));
+		points.add((new Point("id5", Point.parseCat("restaurant"), 3, 1)));
+		points.add((new Point("id6", Point.parseCat("restaurant"), 3, 5)));
+		points.add((new Point("id7", Point.parseCat("restaurant"), 0, 0)));
+		points.add((new Point("id8", Point.parseCat("restaurant"), 2, 2)));
+		points.add((new Point("id9", Point.parseCat("restaurant"), 0, 5)));
+		points.add((new Point("id10", Point.parseCat("restaurant"), 2, 4)));
+		points.add((new Point("id11", Point.parseCat("restaurant"), 4, 2)));
+		points.add((new Point("id12", Point.parseCat("restaurant"), 6, 0)));
+		points.add((new Point("id13", Point.parseCat("restaurant"), 4, 4)));
+		points.add((new Point("id14", Point.parseCat("restaurant"), 6, 6)));*/
+		
 		agent.buildIndex(points);
 	}
 	
