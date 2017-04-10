@@ -168,8 +168,7 @@ public class generateData {
 			// generate lon
 			lon = generateRandomDouble( minLon, maxLon );
 			data = String.format("%10.6f %10.6f %n", lat, lon);  
-			testData.add( cat.toString() + data );
-			//testData.add( cat.toString() + " %10.6f %10.6f %n", lat, lon );
+			testData.add( cat.toString() + " " + data );
 		}
 		return testData;
 	}
