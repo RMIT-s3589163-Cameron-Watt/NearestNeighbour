@@ -69,22 +69,24 @@ public class generateData {
 	// Declare a output stream variable
     PrintWriter outputStream = null; 
 
-    
     /* Public constructor for this class. */
-    public generateData( ) {
-    	generateTestData( smallFileName, smallNoOfRecords );
-		generateTestData( mediumFileName, mediumNoOfRecords );
-		generateTestData( largeFileName, largeNoOfRecords );
+    public generateData( boolean generateInputs ) {
+    	generateTestData( smallFileName, smallNoOfRecords, generateInputs );
+		generateTestData( mediumFileName, mediumNoOfRecords, generateInputs );
+		generateTestData( largeFileName, largeNoOfRecords, generateInputs );
     }
 
 	/* Generates a list containing the testData, and then calls generateInputFile
 	 * which uses this list to generate the input files for the python test script
 	 */
-	private void generateTestData( String fileName, int noOfRecords ) {
+	private void generateTestData( String fileName, int noOfRecords, boolean generateInputs ) {
 		testData = generate( noOfRecords );
-		generateInputFile( (fileName + "-" + smallAddDelete ), 10, testData );
-		generateInputFile( (fileName + "-" + medAddDelete ), 25, testData );
-		generateInputFile( (fileName + "-" + largeAddDelete ), 100, testData );
+		
+		if ( generateInputs ) {
+			generateInputFile( (fileName + "-" + smallAddDelete ), 10, testData );
+			generateInputFile( (fileName + "-" + medAddDelete ), 25, testData );
+			generateInputFile( (fileName + "-" + largeAddDelete ), 100, testData );
+		}
 
 		saveTestDataToFile( fileName, noOfRecords, testData );
 	}
@@ -191,7 +193,9 @@ public class generateData {
 //Used to run the data generator 
 class starter {
 	public static void main(String[] args) {
-		generateData newDataSet = new generateData();
+		// Used to turn off the inputFile generation (meaning only 3 files will be generated)
+		boolean generateInputs = true;
+		generateData newDataSet = new generateData( generateInputs );
 	}
 }
 
