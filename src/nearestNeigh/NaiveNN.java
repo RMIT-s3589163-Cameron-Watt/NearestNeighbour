@@ -12,10 +12,10 @@ import java.util.ListIterator;
 public class NaiveNN implements NearestNeigh{
 	
 	private List<Point> points;
-
+	
     @Override
     public void buildIndex(List<Point> points) {
-        this.setPoints(points);
+        this.setPoints(selectionSortByLatitude(points));
     }
 
     @Override
@@ -62,11 +62,26 @@ public class NaiveNN implements NearestNeigh{
 
     @Override
     public boolean isPointIn(Point point) {
-   	if ( points.contains(point) ) {
+    	return checkMiddlePoint(this.points, point);
+    }
+    
+    private boolean checkMiddlePoint(List<Point> points, Point pointToFind) {
+    	if (points.isEmpty() || points == null)
+    		return false;
+    	int middlePoint = points.size()/2;
+    	System.out.println("*************************************");
+    	System.out.println("Not an empty list");
+    	System.out.println("Size of list is: " + points.size());
+    	System.out.println("middle index is: " + middlePoint);
+    	if (pointToFind.equals(points.get(middlePoint)))
     		return true;
+    	else if (points.size() > 1) {
+    		return  checkMiddlePoint(points.subList(0, middlePoint), pointToFind) || 
+        			checkMiddlePoint(points.subList(middlePoint, points.size()), pointToFind);
     	}
-    	return false;
-    }    
+    	else 
+    		return false;
+    }
     
     private List<PointAndDistance> selectionSortByDistance(List<PointAndDistance> array) {
         for (int j = 0; j < array.size() - 1; ++j) { // visit each item in the list
@@ -78,6 +93,23 @@ public class NaiveNN implements NearestNeigh{
         	}
         	if (array.get(j).distance > array.get(smallestIndex).distance) {
         		PointAndDistance temp = array.get(j);
+        		array.set(j, array.get(smallestIndex));
+        		array.set(smallestIndex, temp);
+        	}
+        }
+        return array;
+    }
+    
+    private List<Point> selectionSortByLatitude(List<Point> array) {
+        for (int j = 0; j < array.size() - 1; ++j) { // visit each item in the list
+        	int smallestIndex = j + 1;
+        	for (int x = j + 2; x < array.size(); ++x) { // for each 'j', compare it to each array[index > j]
+        		if (array.get(x).lat < array.get(smallestIndex).lat) {
+        			smallestIndex = x;
+        		}
+        	}
+        	if (array.get(j).lat > array.get(smallestIndex).lat) {
+        		Point temp = array.get(j);
         		array.set(j, array.get(smallestIndex));
         		array.set(smallestIndex, temp);
         	}
