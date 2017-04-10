@@ -48,6 +48,7 @@ public class NaiveNN implements NearestNeigh{
     		return false;
     	}
     	points.add(point);
+    	this.points = selectionSortByLatitude(points);
 		return true;       
     }
 
@@ -69,10 +70,6 @@ public class NaiveNN implements NearestNeigh{
     	if (points.isEmpty() || points == null)
     		return false;
     	int middlePoint = points.size()/2;
-    	System.out.println("*************************************");
-    	System.out.println("Not an empty list");
-    	System.out.println("Size of list is: " + points.size());
-    	System.out.println("middle index is: " + middlePoint);
     	if (pointToFind.equals(points.get(middlePoint)))
     		return true;
     	else if (points.size() > 1) {
