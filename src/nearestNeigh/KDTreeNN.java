@@ -76,6 +76,8 @@ public class KDTreeNN implements NearestNeigh{
     public List<Point> search(Point searchTerm, int k) {
     	List<NodeAndDistance> closest = findKNodes(root, new Node(searchTerm, true, null, null, null), k, new ArrayList<>());
     	List<Point> kPoints = new ArrayList<>(); 
+    	if (k > closest.size())
+    		k = closest.size();
     	for (NodeAndDistance n : closest.subList(0, k))
     		kPoints.add(n.node.getPoint());
         return kPoints;
