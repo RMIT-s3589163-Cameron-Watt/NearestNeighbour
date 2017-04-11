@@ -47,8 +47,14 @@ public class NaiveNN implements NearestNeigh{
     		// Return false if the point is already in the data structure
     		return false;
     	}
-    	points.add(point);
-    	this.points = selectionSortByLatitude(points);
+    	int insertIndex = points.size();
+    	for (int x = 0; x < points.size(); x++) {
+    		if (points.get(x).lat > point.lat) { 
+    			insertIndex = x;
+    			break;
+    		}
+    	}
+    	points.add(insertIndex, point);
 		return true;       
     }
 
