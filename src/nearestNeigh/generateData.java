@@ -6,13 +6,14 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 
-/* This class aims at generating a number of records in the form of 
+/* This class is used to generate sample input and sample data for use within the data 
+ * structures used in this project, with records in the form of 
  *       id10 restaurant -36.4840417904 144.608559957
- * Then outputting this data to a text file
+ * These outputs are also saved to text files and .in (input) files
  * 
- * WARNING This class uses formatted output, so the values of data generated must be selected
- * 			carefully, else change the formatting values to ensure the numbers are printed
- * 			with a reasonable number of decimal places 
+ * WARNING This class uses formatted output, so to prevent duplicates, the range of values
+ * 			to be generated must be selected carefully, else change the formatting values
+ * 			to include more decimal places to ensure more possibilities 
  * 
  * This program will generate 12 files, based on a small, medium and large number of records
  * The first will be a small.txt (a smallNoOfRecords sized sample of testData), then 3 more 
@@ -46,7 +47,7 @@ public class generateData {
 	// Number of records to be generated
     int smallNoOfRecords =     100;
 	int mediumNoOfRecords =  10000;
-	int largeNoOfRecords = 1000000;
+	int largeNoOfRecords =   50000;
 
 	// Number of addition/deletions to be generated
 	int smallAddDelete = 10;
@@ -124,11 +125,13 @@ public class generateData {
 		 * an addition and a deletion, although this is not ideal, it will suit
 		 * for our test purposes 
 		 */	 
+		int extraID = testData.size();
 		for ( int idNo = 0; idNo < noOfInputs; idNo++ ) {
 			// Add point to delete to input file
-			outputStream.printf( "D " + testData.get(idNo) );
+			outputStream.printf( "D " + "id" + idNo + " " + testData.get(idNo) );
 			// Add point to add to the input file
-			outputStream.printf( "A " + addList.get(idNo) );
+			outputStream.printf( "A " + "id" + extraID + " " + addList.get(idNo) );
+			extraID++;
 		}
 
 		// Close the outputStream and save the file
